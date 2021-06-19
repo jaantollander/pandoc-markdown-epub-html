@@ -1,0 +1,56 @@
+name: Build
+
+on: push
+
+jobs:
+  convert_via_pandoc:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: EPUB output
+        uses: docker://pandoc/core:2.12
+        with:
+          args: >-
+            content/index.md
+            --resource-path=content
+            --citeproc
+            --csl=assets/citation-style.csl
+            --from=markdown+tex_math_single_backslash+tex_math_dollars+raw_tex
+            --to=epub
+            --output=output.epub
+            --epub-cover-image=assets/cover.png
+            --mathml
+            --toc
+      - name: Create html directory
+        run: |
+          mkdir html
+      - name: HTML output
+        uses: docker://pandoc/core:2.12
+        with:
+          args: >-
+            content/index.md
+            --resource-path=content
+            --extract-media=media
+            --citeproc
+            --csl=assets/citation-style.csl
+            --from=markdown+tex_math_single_backslash+tex_math_dollars+raw_tex
+            --to=html5
+            --output=html/output.html
+            --mathjax
+            --standalone
+      - name: Move media directory to html directory
+        run: |
+          mv media/ html/
+      - uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: |
+            output.epub
+      - name: release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            output.epub
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
