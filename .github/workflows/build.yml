@@ -21,31 +21,24 @@ jobs:
             --epub-cover-image=assets/cover.png
             --mathml
             --toc
-      - name: Create html directory
-        run: |
-          mkdir html
       - name: HTML output
         uses: docker://pandoc/core:2.12
         with:
           args: >-
             content/index.md
             --resource-path=content
-            --extract-media=media
+            --extract-media="."
             --citeproc
             --csl=assets/citation-style.csl
             --from=markdown+tex_math_single_backslash+tex_math_dollars+raw_tex
             --to=html5
-            --output=html/output.html
+            --output=output.html
             --mathjax
             --standalone
-      - name: Move media directory to html directory
-        run: |
-          mv media/ html/
       - uses: actions/upload-artifact@v2
         with:
           name: build
-          path: |
-            output.epub
+          path: "."
       - name: release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
