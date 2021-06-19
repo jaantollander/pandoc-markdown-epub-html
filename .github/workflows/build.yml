@@ -35,6 +35,9 @@ jobs:
             --output=output.html
             --mathjax
             --standalone
+      - name: Compress HTML output into an archive
+        run: |
+          tar -cvz -f html.tar.gz output.html media
       - uses: actions/upload-artifact@v2
         with:
           name: build
