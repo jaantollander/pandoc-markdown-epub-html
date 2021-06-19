@@ -27,7 +27,7 @@ jobs:
           args: >-
             content/index.md
             --resource-path=content
-            --extract-media="."
+            --extract-media=media
             --citeproc
             --csl=assets/citation-style.csl
             --from=markdown+tex_math_single_backslash+tex_math_dollars+raw_tex
@@ -38,7 +38,10 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: build
-          path: "."
+          path: |
+            output.epub
+            output.html
+            media
       - name: release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
